@@ -1,35 +1,22 @@
 version: 0.2
 
+
 phases:
-  install:
-    runtime-versions:
-      docker: 18
+  pre_build:
     commands:
-      - echo "Installing Software..."
-      - yum update -y
-      - yum install -y docker
-      - service docker start
-      - docker --version  # Verify Docker installation 
-      - echo "Software Installed..."
-      
-  pre_build: 
-    commands: 
-      - echo "Logging in to Amazon ECR...."
-      - aws --version
-      - aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin 123159274940.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com
       - mvn clean install
       - echo Logging in to Amazon ECR...
-      - REPOSITORY_URI=123159274940.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/demo-test
+      - aws --version
+      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
+      - REPOSITORY_URI=123159274940.dkr.ecr.eu-north-1.amazonaws.com/demo-test
       - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
       - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
-      
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
       - docker build -t $REPOSITORY_URI:latest .
       - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
-
   post_build:
     commands:
       - echo Build completed on `date`
@@ -39,8 +26,7 @@ phases:
       - echo Writing image definitions file...
       - printf '[{"name":"order-service","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
       - cat imagedefinitions.json
-
 artifacts:
   files:
-    - imagedefinitions.json
-    - target/spring-boot-docker.jar
+   - imagedefinitions.json
+   - target/spring-boot-docker.jar
