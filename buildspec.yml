@@ -6,7 +6,7 @@ phases:
       - echo "Installing Software..."
       - yum update -y
       - yum install -y docker
-      - service docker start
+      - if [ -x "$(command -v systemctl)" ]; then systemctl start docker; else service docker start; fi
       - docker --version  # Verify Docker installation 
       - echo "Software Installed..."
       
