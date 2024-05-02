@@ -1,32 +1,26 @@
 version: 0.2
 
-
 phases:
-  pre_build:
+  install:
     commands:
-      - mvn clean install
-      - echo Logging in to Amazon ECR...
+      - echo "Installing Software..."
+      - apt-get update
+      - apt-get install -y docker.io
+      - docker --version  # Verify Docker installation 
+      - echo "Software Installed..."
+      
+  pre_build: 
+    commands: 
+      - echo "Logging in to Amazon ECR...."
       - aws --version
-      - $(aws ecr get-login --region $AWS_DEFAULT_REGION --no-include-email)
-      - REPOSITORY_URI=123159274940.dkr.ecr.eu-north-1.amazonaws.com/demo-test
-      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
-      - IMAGE_TAG=build-$(echo $CODEBUILD_BUILD_ID | awk -F":" '{print $2}')
+      - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 123159274940.dkr.ecr.eu-north-1.amazonaws.com
   build:
     commands:
-      - echo Build started on `date`
-      - echo Building the Docker image...
-      - docker build -t $REPOSITORY_URI:latest .
-      - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
+      - echo "Building Docker image..."
+      - mvn clean install
+      - docker build -t videopivcuat .
+      - docker tag videopivcuat:latest 123159274940.dkr.ecr.eu-north-1.amazonaws.com/demo-test
   post_build:
     commands:
-      - echo Build completed on `date`
-      - echo Pushing the Docker images...
-      - docker push $REPOSITORY_URI:latest
-      - docker push $REPOSITORY_URI:$IMAGE_TAG
-      - echo Writing image definitions file...
-      - printf '[{"name":"order-service","imageUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
-      - cat imagedefinitions.json
-artifacts:
-  files:
-   - imagedefinitions.json
-   - target/order-service.jar
+      - echo "Pushing Docker image to Amazon ECR..."
+      - docker push 123159274940.dkr.ecr.eu-north-1.amazonaws.com/demo-test
