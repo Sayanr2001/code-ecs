@@ -2,11 +2,11 @@ version: 0.2
 
 phases:
   install:
-    commands:
+   commands:
       - echo "Installing Software..."
       - yum update -y
       - yum install -y docker
-      - systemctl start docker
+      - service docker start
       - docker --version  # Verify Docker installation 
       - echo "Software Installed..."
       
