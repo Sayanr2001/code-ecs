@@ -4,8 +4,9 @@ phases:
   install:
     commands:
       - echo "Installing Software..."
-      - apt-get update
-      - apt-get install -y docker.io
+      - yum update -y
+      - yum install -y docker
+      - service docker start
       - docker --version  # Verify Docker installation 
       - echo "Software Installed..."
       
@@ -14,12 +15,14 @@ phases:
       - echo "Logging in to Amazon ECR...."
       - aws --version
       - aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 123159274940.dkr.ecr.eu-north-1.amazonaws.com
+      
   build:
     commands:
       - echo "Building Docker image..."
       - mvn clean install
       - docker build -t videopivcuat .
       - docker tag videopivcuat:latest 123159274940.dkr.ecr.eu-north-1.amazonaws.com/demo-test
+      
   post_build:
     commands:
       - echo "Pushing Docker image to Amazon ECR..."
