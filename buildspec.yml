@@ -4,8 +4,9 @@ phases:
   install:
     commands:
       - echo "Installing Software..."
-      - apt-get update
-      - apt-get install -y docker.io
+      - yum update -y
+      - yum install -y docker
+      - service docker start
       - docker --version  # Verify Docker installation 
       - echo "Software Installed..."
       
