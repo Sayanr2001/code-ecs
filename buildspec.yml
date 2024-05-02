@@ -20,8 +20,8 @@ phases:
     commands:
       - echo "Building Docker image..."
       - mvn clean install
-      - docker build -t videopivcuat .
-      - docker tag videopivcuat:latest 123159274940.dkr.ecr.eu-north-1.amazonaws.com/demo-test
+      - docker build -t demo-test .
+      - docker tag demo-test 123159274940.dkr.ecr.eu-north-1.amazonaws.com/demo-test
       
   post_build:
     commands:
