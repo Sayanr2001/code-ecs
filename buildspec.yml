@@ -7,7 +7,8 @@ phases:
     commands:
       - echo "Installing Software..."
       - yum update -y
-      - amazon-linux-extras install docker -y
+      - amazon-linux-extras enable docker
+      - yum install docker -y
       - service docker start
       - docker --version  # Verify Docker installation 
       - echo "Software Installed..."
