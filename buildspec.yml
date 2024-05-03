@@ -2,10 +2,13 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      java: corretto11
     commands:
       - echo "Installing Software..."
-      - apt-get update
-      - apt-get install -y docker.io
+      - yum update -y
+      - amazon-linux-extras install docker -y
+      - service docker start
       - docker --version  # Verify Docker installation 
       - echo "Software Installed..."
       
